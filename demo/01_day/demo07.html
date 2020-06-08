@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>绑定内联样式 和 v-for</title>
+    <!--1、导入Vue的包-->
+    <script src="../../lib/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <p>绑定内联样式</p>
+    <!--对象就是无序键值对的集合:style直接写内容对象，对象，数组-->
+    <h1 :style="{color:'red','font-weight':200}">这是一个h1</h1>
+    <h1 :style="styleObj">这是一个h1</h1>
+    <h1 :style="[styleObj,styleObj2]">这是一个h1</h1>
+
+    <p>v-for的四种方式：循环遍历</p>
+    <!--//不建议的方式
+    <p>{{list[0]}}</p>
+    <p>{{list[1]}}</p>
+    <p>{{list[2]}}</p>
+    <p>{{list[3]}}</p>
+    <p>{{list[4]}}</p>
+    -->
+    <p>循环普通数组</p>
+    <p v-for="item in list">{{item}}</p>
+    <p v-for="(item,i) in list">索引{{i}}---每一项{{item}}</p><!--普通数组-->
+    <p>循环复杂数组</p>
+    <p v-for="user in lists">id:{{user.id}}---name:{{user.name}}</p><!--复杂数组-->
+    <p>循环对象</p>
+    <!--注意：在遍历对象身上的键值对的时候，除了有val,key,在第三个位置还有索引-->
+    <p v-for="(val,key) in account">值：{{val}}---键：{{key}}</p><!--对象-->
+    <p v-for="(val,key,i) in account">值：{{val}}---键：{{key}}---索引：{{i}}</p>
+    <p>循环数字</p>
+    <!--如果使用v-for迭代数字，前面的count值从1开始-->
+    <p v-for="count in 10">这是第{{count}}次循环</p>
+
+    <p>注意：在2.2.0+的版本中，当在数组中使用v-for是，key是必须的</p>
+    <div>
+        <label>id:
+            <input type="text" v-model="id">
+        </label>
+        <label>name:
+            <input type="text" v-model="name">
+        </label>
+        <input type="button" value="添加" @click="add">
+    </div>
+    <!--v-for循环的时候，key属性只能使用number或string-->
+    <!--key在使用的时候，必须使用v-bind属性绑定的形式，指定key的值-->
+    <!--在组件中，使用v-for循环的时候，或者一些特殊情况中，如果使用v-for有问题，必须在使用
+        v-for的同时，指定唯一的字符串/数字 类型:key值-->
+    <p v-for="item in list2" :key="item.id">
+        <input type="checkbox">{{item.id}}---{{item.name}}
+    </p>
+
+</div>
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: {//data属性中，存放的是el中要用到的数据
+            styleObj: {color:'red','font-weight':200},
+            styleObj2: {'font-style':'italic'},
+            list: [1,2,3,4,5],
+            lists: [
+                {id:1,name:'123'},
+                {id:2,name:'223'},
+                {id:3,name:'323'},
+            ],
+            account: {
+                id:1,
+                name: '大卫.科波菲尔',
+                age: 20
+            },
+            list2: [
+                {id:1,name:'李斯'},
+                {id:2,name:'嬴政'},
+                {id:3,name:'赵高'}
+            ],
+            id: '',
+            name: '',
+        },
+        methods: {
+            add() {//添加方法
+                // this.list2.push({id:this.id,name: this.name});
+                this.list2.unshift({id:this.id,name: this.name});
+            }
+        }
+    })
+</script>
+</body>
+</html>

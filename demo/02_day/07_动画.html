@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <!--1、导入Vue的包-->
+    <script src="../../lib/vue.js"></script>
+    <link rel="stylesheet" href="../../lib/animate.css">
+    <style>
+        /*2、自定义两组样式，来控制transition内部的元素实现动画*/
+        /*v-enter:【一个时间点】进入之前，元素的起始状态，此时元素还没有进入*/
+        /*v-leave-to: 【一个时间点】事动画离开之后，离开的终止状态，此时，元素动画已经结束*/
+        .v-enter,
+        .v-leave-to {
+            opacity: 0;/*设置 div 元素的不透明级别*/
+            transform: translateX(150px);
+        }
+        /*v-enter-active:【入场动画的时间段】*/
+        /*v-leave-active:【立场动画的时间段】*/
+        .v-enter-active,
+        .v-leave-active {
+            transition: all 0.8s ease;
+        }
+
+        /*自定义动画*/
+        .second-enter,
+        .second-leave-to {
+            opacity: 0;/*设置 div 元素的不透明级别*/
+            transform: translateY(70px);
+        }
+        .second-enter-active,
+        .second-leave-active {
+            transition: all 0.8s ease;
+        }
+
+        /*入场用bounceIn 离场bounceOut*/
+
+        /*半场动画*/
+        .ball {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: red;
+        }
+
+    </style>
+</head>
+<body>
+<div id="app">
+    <p>不使用动画的情况</p>
+    <input type="button" value="按钮" @click="flag = !flag">
+    <!--需求：点击按钮让h3现实，再点击隐藏-->
+    <h3 v-show="flag">一个h3标签</h3>
+
+    <!--需求：点击按钮让h3现实，再点击隐藏-->
+    <!--1、使用transition把被动画控制的元素，包裹起来。transiton元素，是由Vue官方提供。-->
+    <p>使用动画</p>
+    <input type="button" value="按钮" @click="flag1 = !flag1">
+    <transition>
+    <h3 v-show="flag1">一个h3标签</h3>
+    </transition>
+    
+    <p>使用动画</p>
+    <input type="button" value="按钮" @click="flag2 = !flag2">
+    <transition name="second">
+        <h3 v-show="flag2">一个h3标签</h3>
+    </transition>
+
+
+    <br/>
+    <p>使用第三方animate.css类库实现动画(<a href="https://daneden.github.io/animate.css/">下载animate.css</a>)</p>
+    <input type="button" value="按钮" @click="flag3 = !flag3">
+    <!--使用：duration="毫秒值" 来统一设置入场和出场时候的动画时长-->
+    <transition enter-active-class="animated bounceIn"
+                leave-active-class="animated bounceOut" :duration="200">
+        <h3 v-show="flag3">一个h3标签</h3>
+    </transition>
+    <!--使用： :duration="{enter:200,leave:400} 来设置入场时长和出场时长-->
+    <transition enter-active-class="bounceIn"
+                leave-active-class="bounceOut"
+                :duration="{enter:200,leave:400}">
+        <h3 v-show="flag3" class="animated">一个h3标签</h3>
+    </transition>
+
+    <p>钩子函数实现半场动画：模拟小球半场动画</p>
+    <input type="button" value="快到碗里来" @click="flag4 = !flag4">
+    <!--用transition把小球包裹起来-->
+    <transition
+            v-on:before-enter="beforeEnter"
+            v-on:enter="enter"
+            v-on:after-enter="afterEnter"
+    >
+        <div class="ball"v-show="flag4"></div>
+    </transition>
+
+</div>
+<script>
+    //2、创建一个Vue的实例
+    var vm = new Vue({
+        el: '#app',
+        data: {//data属性中，存放的是el中要用到的数据
+            flag: false,
+            flag1: false,
+            flag2: false,
+            flag3: false,
+            flag4: false,
+        },
+        methods: {
+            /*动画钩子函数第一个参数: el ，表示要执行动画的那个DOM元素，是个原生的js DOM对象
+            * 可以认为，el是通过""document.getElementById('')方式获取到的原生JS DOM对象
+            * */
+            beforeEnter(el) {
+                console.log("beforeEnter");
+                //beforeEnter 表示动画入场之前，此时，动画尚未开始，可以在beforeEnter中，设置元素开始动画之前的起始样式
+                //设置小球开始动画之前的，起始位置
+                /**
+                 * 为什么小球每次都是从初始位置移动呢？
+                 * 当点击按钮后，小球会位移到(150px,150px)位置，再次点击按钮，beforeEnter函数会将
+                 * 执行下面的一句代码将小球的位置重置到(0,0)
+                 * @type {string}
+                 */
+                el.style.transform = "translate(0,0)";
+            },
+            enter(el) {
+                console.log("enter");
+                //这句话，没有实际的作用，但是，如果不写，出不来动画效果，可以认为el.offsetWidth会强制动画刷新
+                el.offsetWidth;//有offset的都可以
+                //enter表示动画 开始之后的样式，这里可以设置小球完成动画之后的，结束状态
+                el.style.transform = "translate(150px,150px)";
+                el.style.transition = 'all 1s ease';
+                //这里的done()，其实就是afterEnter这个函数，也就是说： done是afterEnter的引用
+                done();
+            },
+            afterEnter(el) {
+                console.log("afterEnter");
+                //动画完成之后，会调用afterEnter
+                this.flag4 =  !this.flag4;
+            }
+        }
+    })
+</script>
+</body>
+</html>

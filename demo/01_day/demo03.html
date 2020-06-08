@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <!--1、导入Vue的包-->
+    <script src="../../lib/vue.js"></script>
+</head>
+<body>
+<!--2、创建控制区域-->
+<div id="app">
+    <input type="button" value="浪起来" @click="lang">
+    <input type="button" title="低调" @click="stop">
+    <h4>{{msg}}</h4>
+</div>
+<script>
+    //3、创建一个Vue的实例
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            msg: "猥琐发育，别浪",
+            intervalId: null,//在data上定义定时器id,在停止的时候用到
+        },
+        methods: {
+            lang(){
+                /**问题1:
+                 * 如果一直点击"lang"按钮，setInterval一直执行，intervalId就会一直变，就是开了多个定时器，
+                 * 所以在执行定时器方法前，必须判断，如果intervalId不为null,定时器就不执行了。
+                 * 问题2：
+                 * 点击"lang"按钮，intervalId 有值，然后stop直接清楚定时器，这时如果再点击"lang"按钮，发现不动了，
+                 * 这是因为stop虽然清楚了定时器，但是intervalId仍然有值，所以必须在stop中重置intervalId。
+                 */
+                if (this.intervalId != null) return;
+                //console.log(this.msg);
+                //获取头的第一个字符
+                //用箭头函数就可以保证setInterval函数内部的this和外部的this即vm是一样的，不然就要在外面重新定义一个变量存储vm的this.
+                this.intervalId =  setInterval(()=> {
+                    //lang代表方法名，()代表参数列表，{}代表方法体，解析的时候会自动加function.---EC6中可省略function。
+                    //在vm实例中(内部)要想获取data身上的数据，或调用methods中方法，都要通过this.属性名 或 this.方法名，
+                    //来进行访问，这里的this，就表示我们new出来的VM实例对象
+                    var start = this.msg.substring(0, 1);//获取到头的第一个字符
+                    var end = this.msg.substring(1);//获取到后面的所有字符串
+                    this.msg = end + start;//重新拼接得到新的字符串，并赋值给this.msg
+
+                    //注意：VM实例，会监听自己身上data中的所有数据的改变，只要数据一发生变化，
+                    //就会自动把更新的数据，从data上同步到页面中去。
+                    //【好处：程序员只需要关心数据，不需要考虑如何重新渲染DOM页面。
+                },400);
+            },
+            stop() {
+                clearInterval(this.intervalId);;
+                //每次清除了定时器之后，需要重新把intervalId赋值为null.
+                this.intervalId = null;
+            }
+        }
+    })
+    //分析：
+    //1、给[浪起来]按钮，绑定一个事件，v-on  @
+    //2、在按钮的事件处理函数中，写相关的业务处理逻辑代码，拿到msg字符串，
+    //然后调用字符串的substring来进行字符串的截取操作，把第一个字符串截取
+    //出来，放到最后一个位置即可，
+    //3、为了实现点击下按钮，自动截取的功能，需要把2步骤中的代码，放到一个定时器中去。
+</script>
+</body>
+</html>

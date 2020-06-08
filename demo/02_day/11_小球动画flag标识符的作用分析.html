@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <!--1、导入Vue的包-->
+    <script src="../../lib/vue.js"></script>
+    <style>
+        /*半场动画*/
+        .ball {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <input type="button" value="按钮" @click="flag = !flag">
+    <transition @before-enter="afterEnter"
+                @enter="enter"
+                @after-enter="afterEnter">
+    <div class="ball" v-if="flag"></div>
+    </transition>
+</div>
+<script>
+    //2、创建一个Vue的实例
+    var vm = new Vue({
+        el: '#app',
+        data: {//data属性中，存放的是el中要用到的数据
+            flag: false,
+        },
+        methods: {
+            beforeEnter(el) {
+                el.style.transform='translate(0,0)';
+            },
+            enter(el,done) {
+                el.offsetWidth;
+                el.style.transform='translate(150px,450px)';
+                el.style.transition='all 1s ease';
+                done();
+            },
+            afterEnter(el) {
+                //这句话，第一个功能是控制小球的显示和隐藏，第二个是直接跳过后半场动画，让flag标识符直接变为false
+                //当第二次再点击按钮，flag false ->true
+                this.flag = !this.flag;
+                // el.style.opacity = 0;//修改opacity是不行的
+                //el.style.opacity = 0.5
+
+                //vue把一个完整动画，使用钩子函数，拆分为了两部分
+                //我们使用flag标识符，来表示动画的切换
+                //刚一开开始，flag = false -> true ->false
+                /**
+                 * 当第一次点击按钮，flag由false -> true,此时前半场动画执行，当执行到afterEnter方法，执行
+                 * "this.flag = !this.flag"，直接 flag = false(跳过 true -> false的过程),跳过了后半场动画，
+                 * 回到初始点。
+                 */
+            }
+        }
+    })
+</script>
+</body>
+</html>

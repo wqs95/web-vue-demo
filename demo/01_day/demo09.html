@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <!--1、导入Vue的包-->
+    <script src="../../lib/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <p>{{name}}</p>
+</div>
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: {//data属性中，存放的是el中要用到的数据
+            name: 'jack',
+        }
+    })
+</script>
+</body>
+</html>

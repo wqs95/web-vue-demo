@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <!--1、导入Vue的包-->
+    <script src="../../lib/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <!--如果要使用组件，直接把组件的名称，以HTML标签的形式，引入到页面中，即可-->
+    <my-com1></my-com1>
+    <mycom4></mycom4>
+</div>
+<div id="app2">
+    <mycom4></mycom4>
+    <login></login>
+    <mycom5></mycom5>
+    <hr/>
+    <counter></counter>
+    <counter></counter>
+</div>
+    <template id="tmpl">
+        <div>
+            <h1>这是通过tmeplate元素，在外部定义的组件结构，这个方式，有代码的只能提示和高亮</h1>
+            <h4>好用，不错！</h4>
+        </div>
+    </template>
+<template id="tmpl2">
+    <h3>这是私有的login组件</h3>
+</template>
+<template id="counter">
+    <div>
+        <input type="button" value="+1" @click="increment">
+        <h3>{{count}}</h3>
+    </div>
+</template>
+<script>
+    /**
+     * 什么是组件？
+     * 组件的出现，就是为了拆分vue实例的代码量的，能够让我们以不同的组件，来划分不同的功能模块，
+     * 将来我们需要什么样的功能，就可以去调用对应的组件即可。
+     *
+     * 组件化 和 模块化 不同：
+     * 模块化：是从代码逻辑的角度进行划分的，方便代码分层开发，保证每个功能模块的职能单一！
+     * 组件化：是从UI界面的角度进行划分的；前端的组件化方便 UI组件的重用！
+     */
+    /**=================================组将创建方式1：start======================================*/
+    //===1.1、使用Vue.extend来创建全局的Vue组件
+    var com1 = Vue.extend({
+        //通过template属性，指定了组件要展示的HTML结构
+        template:'<h3>这是使用Vue.extend创建的组件</h3>'
+    });
+    //===1.2、使用Vue.component(‘组件的名称’,创建出来的组件模板对象)
+    /*如果使用Vue.component定义全局组件的时候，组件名称使用了驼峰命名，则在引用的时候，需要把大写的驼峰修改为小写的字母，
+    * 同时，两个单词之间，使用 - 连接
+    * 如果不适用驼峰，则直接拿名称来使用即可。
+    * */
+    Vue.component('myCom1',com1);
+
+    //Vue.component第一个参数：组件的名称，将来在引用组件的时候，就是一个 标签形式 来引入它的
+    // 第二个参数：Vue.extend 创建的组件，其中 template就是组件将来要展示的HTML内容
+    Vue.component('mycom2',Vue.extend({
+        //通过template属性，指定了组件要展示的HTML结构
+        template:'<h3>这是使用Vue.extend创建的组件</h3>'
+    }));
+    /**=================================组将创建方式2：start======================================*/
+    //无论是哪种方式创建出来的组件模板，组件的template属性指定的模板内存，必须有且仅有唯一的一个根元素
+    Vue.component('mycom3',{
+        //当然也可以直接将组件模板定义为一个对象：var login = {template: '<h3>h3标签</h3>'};
+        template:'<div><h3>这是直接使用Vue.extend创建出来的的组件</h3><sapn>哈哈span</sapn></div>'
+    });
+    /**=================================组将创建方式3：start======================================*/
+    //在被控制的#app外面，使用template元素，，定义组件的HTML模板结构
+    Vue.component('mycom4',{
+        template: '#tmpl'
+    });
+    /**=================================5、组件中的data======================================*/
+    Vue.component('mycom5',{
+        template:'<h3>组件中的数据data :  {{msg}}</h3>',
+        //1、组件可以有自己的data数据
+        //2、组件的data和实例的data有点不一样，实例中的data可以为一个对象，但是组件中的data必须是一个方法
+        //3、组件中data，除了必须为一个方法之外，这个方法内部，还必须返回一个对象才行
+        //4、组件中的data数据，使用方式和实例中的data是使用方式是一样的。
+        data: function () {
+            return {
+                msg: '这是组件中data定义的数据',
+            };
+        }
+    });
+    /**=================================6、为什么组件中的data必须是一个function======================================*/
+    var dataObj = {count:0};
+    Vue.component('counter',{//这是一个计数器组件，身上有个按钮，每当点击按钮，让data中的count值加1
+        template: '#counter',
+        data: function () {
+            //在app2中多次用到该组件，而如果返回的是外部对象，由于引用的是共享对象，导致一个组件count加1，其他的也加1，
+            //所以必须是返回一个内部对象，不要用外部共享对象，以免干扰。
+            return {count:0};
+        },
+        methods: {
+            increment() {
+                this.count ++;
+            }
+        }
+    });
+        //2、创建一个Vue的实例
+    var vm = new Vue({
+        el: '#app',
+        data: { }
+    });
+    var vm2 = new Vue({
+        el:'#app2',
+        data: {},
+        methods: {},
+        filters: {},
+        directives: {},
+        components: {
+            /**=================================4、私有组件======================================*/
+            //定义实例内部私有组件
+            login: {
+                template:'#tmpl2',
+                //login:login 也可以写成 login,就相当于后面的模板对象名为login.
+            }
+        },
+
+        beforeCreate() {},
+        created() {},
+        beforeMount() {},
+        mounted() {},
+        beforeUpdate() {},
+        updated(){},
+        beforeDestory(){},
+        destoryed(){}
+
+    })
+</script>
+</body>
+</html>

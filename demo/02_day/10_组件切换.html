@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <!--1、导入Vue的包-->
+    <script src="../../lib/vue.js"></script>
+    <style>
+        .v-enter,
+        .v-leave-to {
+            opacity: 0;
+            transform: translateX(150px);
+        }
+        .v-enter-active,
+        .v-leave-active {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <p>1、组件切换的方式1</p>
+    <a href="" @click.prevent="flag = true">登录</a>
+    <a href="" @click.prevent="flag = false">注册</a>
+
+    <login v-if="flag"></login>
+    <register v-else="flag"></register>
+    <hr/>
+    <p>2、组件切换的方式2</p>
+    <a href="" @click.prevent="componentName = 'login'">登录</a>
+    <a href="" @click.prevent="componentName = 'register'">注册</a>
+    <!--component是一个占位符，is属性，可以用来指定要展示的组件名称-->
+    <comment :is="componentName"></comment>
+    <p>3、组件切换应用动画</p>
+    <!--通过mode属性设置组件切换时的模式-->
+    <a href="" @click.prevent="componentName = 'login'">登录</a>
+    <a href="" @click.prevent="componentName = 'register'">注册</a>
+    <transition mode="out-in">
+        <comment :is="componentName"></comment>
+    </transition>
+</div>
+<script>
+    /**=================================1、组件切换的方式1======================================*/
+    Vue.component('login',{
+        template: '<h3>登录组件</h3>'
+    });
+    Vue.component('register',{
+        template: '<h3>注册组件</h3>'
+    });
+    /**=================================2、组件切换的方式2======================================*/
+    //组件名称是一个字符串
+
+    //2、创建一个Vue的实例
+    var vm = new Vue({
+        el: '#app',
+        data: {//data属性中，存放的是el中要用到的数据
+            flag:true,
+            componentName: 'login',//当前component中的 :is绑定的组件名称
+        }
+    })
+    /**
+     * 当前学习的Vue标签有:
+     * component ,template ,transition ,transitionGroup
+     */
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <!--1、导入Vue的包-->
+    <script src="../../lib/vue.js"></script>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!--
+    情景：浏览器选择"开发者"模式->Network->Online,点击并选择"Slow 3G"，
+         再次刷新，发现在网速很慢时，插值表达式在网页上显示出来了，很不美观。
+    使用v-cloak能够解决插值表达式的闪烁问题-->
+    <p v-cloak>++++++++{{msg}}--------</p>
+    <p v-text="msg">======</p>
+    <!--默认v-text是没有闪烁问题的-->
+    <!--v-text会覆盖元素中原本的内容，但是插值表达式只会替换
+    自己的这个占位符，不会把整个元素的内容清空-->
+
+    <p>{{msg2}}</p>
+    <p v-text="msg2"></p>
+    <p v-html="msg2"></p><!--v-html将含有html标签的字符串解析为html-->
+
+    <!--v-bind是Vue中，提供的用于绑定属性的指令-->
+    <!--<input type="button" value="按钮" v-bind:title="mytitle + '123'">-->
+    <!--注意：v-bind：指令可以被简写为 :要绑定的属性-->
+    <!--v-bind中，可以写合法的js表达式，data中的"mytitle"变量，mytitle变量 +字符串'123'符合js表达式-->
+    <input type="button" value="按钮" :title="mytitle + '123'">
+
+    <!--<input type="button" value="按钮" :title="自定义标签" v-on:click="alert('hello')">-->
+    <input type="button" value="按钮" @click="show"><!--v-on: 可缩写为@-->
+</div>
+</div>
+<script>
+    var vm = new Vue({
+        el: '.app',
+        data: {
+            msg: 'message',
+            msg2: '<h1>我是h1的标签</h1>',
+            mytitle: '这是一个自定义标签',
+        },
+        methods:{//这个methods属性中定义了当前Vue实例所有可用的方法
+            show: function () {
+                alert("show方法");
+            }
+        }
+    })
+
+    /*//传统按钮点击事件是需要操作DOM元素的，但Vue不让操作,该如何？
+    document.getElementById("btn").onclick = function () {
+        alert("hello world");
+    }*/
+</script>
+</body>
+</html>

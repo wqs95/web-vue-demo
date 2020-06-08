@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <!--1、导入Vue的包-->
+    <script src="../../lib/vue.js"></script>
+    <!--注意：vue-resource依赖于vue,所以先后顺序要注意-->
+    <!--this.$http.post,this.$http.get等-->
+    <script src="../../lib/vue-resource.js"></script>
+    <link rel="stylesheet" href="../../lib/bootstrap-3.3.7-dist/css/bootstrap.css">
+</head>
+<body>
+<div id="app">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">添加品牌</h3>
+        </div>
+        <div class="panel-body form-inline">
+            <label>
+                Name:
+                <input type="text" class="form-control" v-model="name">
+            </label>
+            <!--在vue中，使用事件绑定机制，为元素指定处理函数的时候，如果加了小括号，就可以给函数传参了-->
+            <input type="button" value="添加" class="btn btn-primary form-control" @click="add()">
+
+            <label>
+                搜索名称关键字:
+                <!--注意：vue中的所有命令，在调用的时候，用'v-'开头-->
+                <input type="text" class="form-control" v-model="keywords" id ="search">
+            </label>
+        </div>
+    </div>
+    <table class="table table-hover table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>id</th><th>name</th><th>ctime</th><th>operation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in list" :key="item.id">
+            <td>{{item.id}}</td>
+            <td>{{item.name}}</td>
+            <td>{{item.ctime}}</td>
+            <td><a href="" @click.prevent="del(item.id)">删除</a></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+    /*vue-resource官方文档：使用全局配置设置默认属性值。这里设置http的根路径*/
+    /*如果通过全局配置了，请求的数据接口 跟域名，则 在每次单独发起http请求的时候，
+    * 请求的url路径，应该以相对路径开头，前面不能带 / ,否则不会启用跟路径做拼接。
+    * */
+    Vue.http.options.root = "http://127.0.0.1:9000/";
+    /* 开启全局的表单类型数据
+    如果您的Web服务器无法处理编码为application / json的请求，则可以启用emulateJSON选项。
+    这将以application / x-www-form-urlencoded MIME类型发送请求，就像从普通HTML表单中一样。*/
+    Vue.http.options.emulateJSON = true;
+
+    //2、创建一个Vue的实例
+    var vm = new Vue({
+        el: '#app',
+        data: {//data属性中，存放的是el中要用到的数据
+            list: [//存放所有品牌列表的数组
+            ],
+            name: '',
+            keywords: '',
+        },
+        created() {
+            //当vm实例的data和methods初始化完毕后，vm实例会自动执行created这个生命周期函数.
+            //这里尽量早发,所以选择created
+            this.getAllList();
+        },
+        methods: {
+            getAllList() {
+                //获取所有的品牌列表
+                //分析：
+                //1、由于已经导入类Vue-resource这个包，所以，可以直接通过 this.$http来发起资源请求
+                //2、根据接口API文档，知道，获取列表的时候，应该发起一个get请求
+                //3、this.$http.get('url').then(function(result){})
+                //4、当通过then指定回调函数之后，在回调函数中，可以拿到数据服务器返回的result
+                //5、先判断result。status是否等于i，如果等于i，就成功了，可以把result.message
+                //赋值给this.list；如果不等于i，可以弹框提醒，获取数据失败
+                //http://vue.studyit.io/api/getProdList
+                // this.$http.get('http://127.0.0.1:9000/car/findAll').then(result=>{
+                this.$http.get('car/findAll').then(result=>{
+                    //通过$http获取到的数据，都在reult.body中放着。
+                    var status = (result.status === 200);//定义是否成功
+                    var result = result.body;
+                    var newList = new Array();
+                    if (status) {//这里body就是一个结果数组
+                        for (var i = 0; i < result.length; i++) {
+                            console.log(result[i].id + ":" + result[i].name);
+                            newList.push({id: result[i].id, name: result[i].name, ctime: result[i].ctime});
+                            this.list = newList;
+                        }
+                    }else {
+                        alert("数据获取失败");
+                    }
+                    // if (result.status == 2ii) {
+                        //成功了
+                        // this.list = result.body;
+                    // }else {
+                    //     //失败了
+                    //     alert("数据获取失败");
+                    // }
+                });
+            },
+            add() {
+                //添加品牌列表到后台服务器
+                //1、经过查看API接口，发现，要发送一个post请求，this.$http.post
+                //2、this.$http.post()中接收3个参数
+                //   2.1、第一个参数：要求的url地址
+                //   2.2、第二个参数：要提交给服务器的数据，要以对象形式提交给服务器｛name:this.name｝
+                //   2.3、第三个参数：第一个配置对象，要以哪种表单数据类型提交过去，｛
+                //   emulateJSON:true｝,以普通表单格式，将数据提交给服务器
+                //   application/x-www-form-urlencoded
+                //在post方法中，使用.then来设置成功的回调函数，如果想要拿到成功的结果，需要result.body。
+                //=============第一个参数、第二个参数必须有====================
+                // this.$http.post("http://127.0.0.1:9000/car/save",{name:this.name},{emulateJSON: true}).then(result=>{
+                // this.$http.post("car/save",{name:this.name},{emulateJSON: true}).then(result=>{
+                this.$http.post("car/save",{name:this.name}).then(result=>{
+                    console.log("添加方法执行");
+                    var status = (result.status === 200);//定义是否成功
+                    if (status) {
+                        //添加成功后，只需要手动，再调用一下getAllList就能刷新品牌列表了
+                        this.getAllList();
+                        //清空name
+                        this.name = '';
+                    }else {
+                        alert("添加失败");
+                    }
+                })
+            },
+            del(id) {
+                //删除品牌
+                // this.$http.get("http://127.0.0.1:9000/car/delete/" + id).then(result => {
+                this.$http.get("car/delete/" + id).then(result => {
+                    var status = (result.status === 200);//定义是否成功
+                    if (status) {
+                        //删除成功
+                        this.getAllList();
+                    }else {
+                        alert("删除失败");
+                    }
+                })
+            }
+
+        }
+    })
+</script>
+</body>
+</html>

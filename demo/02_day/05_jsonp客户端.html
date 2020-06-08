@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <!--1、导入Vue的包-->
+    <script src="../../lib/vue.js"></script>
+</head>
+<body>
+<div id="app">
+
+</div>
+<script>
+    function showInfo(data) {
+        console.log(data);
+    }
+</script>
+<!--"node 05_node服务器.js"启动服务器，然后浏览器打开05_jsonp客户端.html，可以在console控制台看到"ok"-->
+<script src="http://127.0.0.1:3000/getscript?callback=showInfo"></script>
+<!--
+<script>
+    show();
+</script>
+-->
+</body>
+</html>
